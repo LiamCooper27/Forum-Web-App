@@ -1,0 +1,155 @@
+﻿@model Cw916153.Models.PostCommentViewModel
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<div>
+    <h4>Post</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Post.Title)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Post.Title)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Post.Content)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Post.Content)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Post.CreatedDateTime)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Post.CreatedDateTime)
+        </dd>
+
+        @if (User.IsInRole("canUsePostControls"))
+        {
+            <dt>
+                Change this Post:
+            </dt>
+            <dd>
+                @Html.ActionLink("Edit", "Edit", "Posts", new { id = Model.Post.Id }, null)
+            </dd>
+        }
+
+    </dl>
+</div>
+
+<h4>Comments</h4>
+<button id="btnShowHide" type="button" class="btn btn-default">Show/Hide Comments</button>
+<hr />
+<div id="commentTableDiv">
+    <table class="table">
+
+        @foreach (var item in Model.Comments)
+        {
+            <tr>
+                @if (item.IsAnon == true)
+                {
+                    <th>
+                        Anonymous
+                    </th>
+                }
+                else
+                {
+                    <th>
+                        @Html.DisplayFor(modelItem => item.User)
+                    </th>
+                }
+                <th>
+                    @Html.DisplayFor(modelItem => item.CreatedDateTime)
+                </th>
+            </tr>
+            <tr id="comment-body">
+                <td>
+                    @Html.DisplayFor(modelItem => item.Content)
+                </td>
+                <td id="comment-controls">
+                    @if (User.IsInRole("canUsePostControls"))
+                    {
+                        @Html.ActionLink("Edit", "Edit", "Comments", new { id = item.Id }, null)
+                    }
+                    |
+                    @if (User.IsInRole("canUsePostControls"))
+                    {
+                        @Html.ActionLink("Delete", "Delete", "Comments", new { id = item.Id }, null)
+                    }
+                </td>
+
+            </tr>
+        }
+
+    </table>
+
+</div>
+
+@if (User.IsInRole("canCreateComment") || User.IsInRole("canUsePostControls"))
+{
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-horizontal">
+            <h4>New Comment</h4>
+            <hr />
+
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <input type="hidden" name="PostId" value="@Model.Post.Id" />
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Content, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.Content, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.Content, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.IsAnon, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    <div class="checkbox">
+                        @Html.EditorFor(model => model.IsAnon)
+                        @Html.ValidationMessageFor(model => model.IsAnon, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Create" class="btn btn-default" />
+                </div>
+            </div>
+        </div>
+    }
+}
+
+<div>
+    @Html.ActionLink("Back to Module", "Details", "Modules", new { id = Model.Post.ModuleId }, null)
+</div>
+
+@section Scripts {
+
+    <script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.min.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $("#btnShowHide").click(function () {
+                $('#commentTableDiv').toggle();
+            });
+
+        });
+
+    </script>
+}
+

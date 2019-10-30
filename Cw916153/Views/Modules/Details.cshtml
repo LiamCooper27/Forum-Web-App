@@ -1,0 +1,89 @@
+﻿@model Cw916153.Models.ModulePostViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>@Html.DisplayFor(model => model.Module.Name)</h2>
+
+<div>
+    <h4>Posts</h4>
+</div>
+
+<table class="table">
+    @foreach (var item in Model.Posts)
+    {
+        <tr>
+            <th>
+                @Html.DisplayFor(modelItem => item.Title)
+            </th>
+            <th>
+                @Html.DisplayFor(modelItem => item.User)
+            </th>
+
+        </tr>
+
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Content)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedDateTime)
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                @Html.ActionLink("Comments", "Details", "Posts", new { id = item.Id }, null)
+            </td>
+            <td>
+                @if (User.IsInRole("canUsePostControls"))
+                {
+                    @Html.ActionLink("Delete", "Delete", "Posts", new { id = item.Id }, null)
+                }
+            </td>
+        </tr>
+    }
+</table>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    if (User.IsInRole("canUsePostControls"))
+    {
+        <div class="form-horizontal">
+            <h4>Add New Post</h4>
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <input type="hidden" name="ModuleId" value="@Model.Module.Id" />
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Content, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.Content, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.Content, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Create" class="btn btn-default" />
+                </div>
+            </div>
+        </div>
+    }
+
+}
+
+<div>
+    <a asp-action="Index">Back to Modules</a>
+</div>
